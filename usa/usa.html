@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #f5f2eb;
+            background-color: #000000;
         }
     </style>
 </head>
@@ -22,6 +22,42 @@
     <main>
     </main>
     <script src="usa.js"></script>
+
+    <div class="caption-container">
+        <h1 class="caption-title">USA — Cosmic Appetite</h1>
+        <p class="caption-text">
+            大きく口を開けると、宇宙の均衡が崩れだす。<br>
+            星々の重力に引き込まれ、あなたとハンバーガーが混ざり合う。
+        </p>
+        <span class="caption-sub">* 画面をクリックするとworld mapに戻ります</span>
+    </div>
+
+    <style>
+    .caption-container {
+        position: absolute;
+        bottom: 40px; /* 画面の下から40pxの位置 */
+        left: 40px;   /* 画面の左から40pxの位置 */
+        color: rgba(255, 255, 255, 0.8); 
+        font-family: "Noto Serif JP", "ヒラギノ明朝 ProN", "MS 明朝", serif; /* 明朝体 */
+        z-index: 10;  /* キャンバスより手前に表示 */
+        pointer-events: none; /* 文字がマウスクリックを邪魔しないようにする */
+    }
+    .caption-title {
+        font-size: 20px;
+        font-weight: normal;
+        letter-spacing: 0.1em; /* 文字の間隔を少し広げて上品に */
+        margin-bottom: 10px;
+    }
+    .caption-text {
+        font-size: 13px;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+    .caption-sub {
+        font-size: 11px;
+        opacity: 0.6;
+    }
+    </style>
 </body>
 
 </html>

@@ -9,7 +9,7 @@ let isFalling = false;
 let music, fft;
 
 function preload() {
-  handPose = ml5.handPose({ maxHands: 1, flipHorizontal: true });
+ handPose = ml5.handPose({ maxHands: 1, flipHorizontal: true });
   music = loadSound('/asset/sound/hitslab-brazil-rio-samba-carnival-music-481483.mp3');
 }
 
@@ -38,16 +38,16 @@ function draw() {
   let spectrum = fft.analyze();
   let volume = fft.getEnergy("bass"); // 低音(キックドラムなど)を音量トリガーにする
 
-  // 手の検知（落下判定のみに使用）
+  //手の検知（落下判定のみに使用）
   if (hands.length > 0) {
 
-    let tipY = hands[0].index_finger_tip.y;
-    if (lastY === null) lastY = tipY;
-    if (tipY - lastY > 10 && !isFalling) {
+   let tipY = hands[0].index_finger_tip.y;
+   if (lastY === null) lastY = tipY;
+   if (tipY - lastY > 10 && !isFalling) {
       isFalling = true;
     }
-    lastY = tipY;
-    }
+   lastY = tipY;
+  }
 
   // 音量が一定以上ならパーティクルを生成
   if (!isFalling && volume > 250) { 
@@ -94,7 +94,7 @@ class Particle {
     
     this.pos = createVector(width/2 + random(-width/20, width/20), 4*height/5 + random(-height/10, height/10));
     
-    this.vel = p5.Vector.random2D().mult(random(3, 15));
+    this.vel = p5.Vector.random2D().mult(random(15, 40));
     
     this.alpha = 255;
     this.color = random([

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge to the world | Media Art</title>
+    <style>
+        /* CSS: 上質な質感を作る */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fdfbf7; /* ノスタルジックなベージュ */
+            color: #4a4a4a;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 背景の世界地図（線画イメージ） */
+        .map-bg {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10 50 Q 30 20, 50 50 T 90 50" stroke="%23dcdcdc" fill="none" stroke-width="0.5"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .content {
+            z-index: 1;
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            border: 1px solid #4a4a4a;
+            color: #4a4a4a;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #4a4a4a;
+            color: #fdfbf7;
+        }
+
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1.5s ease; /* 1.5秒かけてゆっくり消える */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map-bg"></div>
+
+    <main class="content">
+        <h1>Bridge to the world</h1>
+        <p>
+            世界の国々が持つ本当の魅力や楽しさは<br>
+            言葉や写真だけでは伝えきれない。<br><br>
+            さあ、画面の向こうに広がる世界に<br>
+            橋を架けに行こう！
+        </p>
+        <a href="#" class="btn" id="startBtn">START TRAVEL</a>
+    </main>
+
+    <script>
+        document.getElementById('startBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // デフォルトのリンク動作を停止
+    
+        // 画面全体にフェードアウトクラスを付与
+        document.body.classList.add('fade-out');
+    
+        // 1.5秒後にページ遷移を実行
+        setTimeout(function() {
+            window.location.href = '/worldmap/worldmap.html'; // 遷移先のファイル名を指定してください
+        }, 1500);
+    });
+    </script>
+</body>
+</html>

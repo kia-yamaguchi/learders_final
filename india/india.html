@@ -14,7 +14,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #f5f2eb;
+            background-color: #cec5b5;
         }
     </style>
 
@@ -24,6 +24,42 @@
  <main>
  </main>
  <script src="india.js"></script>
+
+ <div class="caption-container">
+        <h1 class="caption-title">INDIA — Sacred Chaos</h1>
+        <p class="caption-text">
+            指先から溢れだずスパイスの粉。<br>
+            ホーリー祭が盛り上がる中でも、神聖なる「牛」は変わらず寄り添う。
+        </p>
+        <span class="caption-sub">* 画面をクリックするとworld mapに戻ります</span>
+    </div>
+
+    <style>
+    .caption-container {
+        position: absolute;
+        bottom: 40px; /* 画面の下から40pxの位置 */
+        left: 40px;   /* 画面の左から40pxの位置 */
+        color: rgba(30, 30, 30, 0.8); 
+        font-family: "Noto Serif JP", "ヒラギノ明朝 ProN", "MS 明朝", serif; /* 明朝体 */
+        z-index: 10;  /* キャンバスより手前に表示 */
+        pointer-events: none; /* 文字がマウスクリックを邪魔しないようにする */
+    }
+    .caption-title {
+        font-size: 20px;
+        font-weight: normal;
+        letter-spacing: 0.1em; /* 文字の間隔を少し広げて上品に */
+        margin-bottom: 10px;
+    }
+    .caption-text {
+        font-size: 13px;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+    .caption-sub {
+        font-size: 11px;
+        opacity: 0.6;
+    }
+    </style>
 </body>
 
 </html>

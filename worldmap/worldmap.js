@@ -19,6 +19,8 @@ let brazilImg;
 
 let usaModel;
 let franceModel;
+let indiaModel;
+let japanModel;
 let brazilModel;
 
 
@@ -32,6 +34,7 @@ function preload() {
   usaModel = loadModel('/asset/model/LibertStatue.obj', true);
   franceModel = loadModel('/asset/model/10067_Eiffel_Tower_v1_max2010_it1.obj', true);
   indiaModel = loadModel('/asset/model/tajmahal.obj', true);
+  japanModel = loadModel('/asset/model/him00obj.obj', true);
   brazilModel = loadModel('/asset/model/Christ the Redeemer-bl.obj', true);
 }
 
@@ -43,49 +46,40 @@ function setup() {
 
   let savedCountries = localStorage.getItem('selectedCountriesData');
   if (savedCountries) {
-    // 保存されていた記憶があれば配列に戻して復活させる
     selectedCountries = JSON.parse(savedCountries);
-    
-    // 読み込んだら、ブラウザの記憶（localStorage）の中身をすぐ消去する！
     localStorage.removeItem('selectedCountriesData');
   }
   
-  // 画像のデザインを元にした簡易ドット世界地図データ (0:海、1:陸地, 2:アメリカ, 3:フランス, 4:インド, 5:日本, 6:ブラジル)
+  // 世界地図データ
   worldGrid = [
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0],
-    
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 1,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,1,1,0,0, 0,0,0,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,0, 0,0,0,0,2, 2,2,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 1,1,1,0,0, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,0,0,2, 2,2,2,1,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,1, 1,1,1,0,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,0,0,2,2, 2,2,2,1,1, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0],
-    
     [0, 0,0,0,1,1, 0,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,2, 2,2,2,1,1, 1,1,1,1,1, 1,0,0,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,1,1, 0,0,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,0,1,0, 0,0,0,0,2, 2,2,0,1,1, 1,1,1,1,1, 0,0,0,1,1, 1,0,0,0,0, 0],
     [0, 0,1,0,0,0, 0,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,0,0,1,0, 0,0,0,0,2, 0,0,0,0,0, 1,1,1,1,1, 1,1,0,1,1, 1,0,0,0,0, 0],
     [0, 0,1,0,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,1,1,1, 1,1,1,1,1, 1,1,0,0,0, 0],
     [0, 0,0,3,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 2,2,2,2,2, 2,1,1,1,1, 0,0,0,0,0, 0],
-    
     [0, 0,0,3,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 2,2,2,2,2, 2,2,2,2,2, 0,0,0,0,0, 0],
     [0, 0,1,1,0,1, 0,0,0,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,0, 5,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,2,2,2,2, 2,2,2,0,0, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,0,0,5, 5,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,2,2,2,2, 2,2,2,0,0, 0,0,0,0,0, 0],
     [0, 0,1,1,1,1, 1,1,1,1,1, 0,1,1,1,1, 1,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,1,1, 0,0,2,0,0, 0,0,0,0,0, 0],
     [0, 1,1,1,1,1, 1,1,1,0,1, 1,0,0,1,4, 4,4,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 0,0,0,0,0, 0,0,0,0,0, 0],
-    
     [0, 1,1,1,1,1, 1,1,1,0,1, 1,0,0,0,4, 4,0,0,1,1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,0,0,0, 0,0,0,0,0, 0],
     [0, 1,1,1,1,1, 1,1,1,1,0, 0,0,0,0,4, 4,0,0,1,1, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,0,0, 0,0,0,0,0, 0],
     [0, 1,1,1,1,1, 1,1,1,1,1, 0,0,0,0,0, 0,0,0,1,0, 0,0,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 1,1,1,0,0, 0],
     [0, 0,0,0,0,1, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 6,6,6,6,0, 0],
     [0, 0,0,0,0,0, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,1, 6,6,6,6,6, 0],
-    
     [0, 0,0,0,0,0, 1,1,1,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,1,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,6,6,6, 0],
     [0, 0,0,0,0,0, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,6,6,0, 0],
     [0, 0,0,0,0,0, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,6,0,0, 0],
     [0, 0,0,0,0,0, 1,1,1,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,6,0,0, 0],
     [0, 0,0,0,0,0, 1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,1,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,1,0,0,0, 0],
-    
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 1,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,0,0, 0],
     [0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,1, 0,0,0,0,0, 0],
@@ -94,7 +88,7 @@ function setup() {
   ];
   
   pg = createGraphics(150, 150); 
-  pg.background(240);
+  pg.background(18, 22, 32);
   pg.erase();
   pg.ellipse(pg.width / 2, pg.height / 2, pg.width, pg.height);
   pg.noErase();
@@ -102,24 +96,27 @@ function setup() {
 
 
 function draw() {
-  background(240);
+  background(20, 24, 34); 
   
-  // キーボードの常時入力（ズーム・移動）を処理
   handleKeyboardInput();
   
   orbitControl();
 
-  // WEBGL用のライト設定
-  ambientLight(150);
-  directionalLight(255, 255, 255, 0.5, 1, -0.5);
+  // 暗闇の中で3Dモデルやドットが妖しく光るよう、ライトの当たり方を調整
+  ambientLight(60); 
+  directionalLight(200, 230, 255, 0.5, 1, -0.3); // 青白いサイバーな光
 
   let rows = worldGrid.length;
   let cols = worldGrid[0].length;
   let startX = -(cols * spacing) / 2;
   let startY = -(rows * spacing) / 2;
 
-  scale(zoom);
   translate(offsetX, offsetY);
+  scale(zoom);
+
+  // マウスの3D空間上での現在位置を逆算（周辺検知用）
+  let adjustedMouseX = (mouseX - width / 2 - offsetX) / zoom;
+  let adjustedMouseY = (mouseY - height / 2 - offsetY) / zoom;
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -134,6 +131,7 @@ function draw() {
         let isSelected = selectedCountries.includes(tile);
       
         if (tile >= 2 && tile <= 6 && isSelected) {
+          push(); 
           let img = getCountryImage(tile);
           noStroke();
           texture(img); 
@@ -142,38 +140,105 @@ function draw() {
           texture(pg);
           plane(dotSize, dotSize);
           
-          // 現在処理中のマス(r, c)が「各国の特定の1点」である時のみ3Dモデルを描画
           if (isRepresentativeDot(tile, r, c)) {
             let countryModel = getCountryModel(tile);
             let bbox = countryModel.calculateBoundingBox();
             push();
             
             if(tile === 2) {
-              translate(0-spacing/2, 0-spacing/2, bbox.size.z/2);
+              translate(0-spacing/2, 0-spacing/2, bbox.size.z);
               rotateX(90);
+              scale(0.5);
             }
             else if (tile === 3) {
               translate(0, 0+spacing/2, -10+bbox.size.y/2);
+              scale(0.3);
             }
             else if (tile === 4) {
-                translate(0, 0, bbox.size.z/9);
+                translate(0, 0, bbox.size.z/17);
                 rotateX(90);
+                scale(0.15);
+            }
+            else if (tile === 5) {
+                translate(0, 0, bbox.size.z/15);
+                rotateX(90);
+                scale(0.15);
             }
             else if (tile === 6) {
               translate(0, 0, bbox.size.z/2);
               rotateX(90);
+              scale(0.3);
             }
-            scale(0.3);
-            stroke(40);
-            strokeWeight(0.05);
+
+            
+            // 暗闇に浮かぶワイヤーフレームを白く発光させる
+            stroke(240, 250, 255); 
+            strokeWeight(0.08); 
             noFill();
             model(countryModel);
             pop();
           }
+          pop();
           
         } else {
-          ambientMaterial(144, 173, 102);
-          sphere(dotSize / 2); 
+          
+          // マウスとこのドットの距離を計算
+          let d = dist(x, y, adjustedMouseX, adjustedMouseY);
+          
+          // マウスが近づくほど（距離dが小さいほど）大きくなる倍率を計算
+          let mouseEffect = 1.0;
+          let isNearMouse = false;
+          if (d < 45) { // マウスから半径45ピクセル以内なら反応
+            mouseEffect = map(d, 0, 45, 1.8, 1.0); 
+            isNearMouse = true;
+          }
+
+          noStroke();
+          
+          // 発光と色の設定
+          let maxDistance = 70;
+
+          let normalAmbient = [110, 86, 116];
+          let centerAmbient = [205, 115, 135]; 
+          let centerEmissive = [90, 40, 50];
+
+          if (d < maxDistance) {
+            // マウスに近いほど1.0（中心）、遠いほど0.0（外縁）になる比率（0.0 〜 1.0）を計算
+             let amt = map(d, 0, maxDistance, 1.0, 0.0);
+  
+            // 変化のカーブを「じわっと溶ける」ように補正（Smoothstepの再現）
+            amt = amt * amt * (3 - 2 * amt); 
+
+            //  ambientMaterial のブレンド（緑からピンクへじわっと変化）
+            let r_amb = lerp(normalAmbient[0], centerAmbient[0], amt);
+            let g_amb = lerp(normalAmbient[1], centerAmbient[1], amt);
+            let b_amb = lerp(normalAmbient[2], centerAmbient[2], amt);
+            ambientMaterial(r_amb, g_amb, b_amb);
+
+            // emissiveMaterial のブレンド（外側は0、中心に近づくほど発光）
+            let r_emi = lerp(0, centerEmissive[0], amt);
+            let g_emi = lerp(0, centerEmissive[1], amt);
+            let b_emi = lerp(0, centerEmissive[2], amt);
+            emissiveMaterial(r_emi, g_emi, b_emi);
+            
+            // マウスが近づくほど大きくなる倍率
+            let mouseEffect = map(amt, 0, 1, 1.0, 1.8);
+
+          } else {
+            // 通常時（完全にマウスの範囲外）
+            ambientMaterial(normalAmbient[0], normalAmbient[1], normalAmbient[2]);
+            emissiveMaterial(0); // 発光なし
+          }
+
+          // ズーム連動型の形状変化
+          // zoomが1.3以上なら滑らかな「球体」、それ以下ならデジタルな「立方体」
+          let currentSize = (dotSize / 2) * mouseEffect;
+          
+          if (zoom >= 1.3) {
+            sphere(currentSize); // 解像度高：有機的な球体
+          } else {
+            box(currentSize * 1.5); // 解像度低：カクカクしたデジタル立方体
+          }
         }
         pop();
       }
@@ -190,22 +255,20 @@ function getCountryImage(num) {
   if (num === 6) return brazilImg;
 }
 
-// 各国の3Dモデルを配置する「特定の1ドット」のインデックスを判定
 function isRepresentativeDot(num, r, c) {
   if (num === 2) return (r === 14  && c === 46); 
   if (num === 3) return (r === 12 && c === 3);  
   if (num === 4) return (r === 18 && c === 16); 
   if (num === 5) return (r === 15 && c === 26); 
-  if (num === 6) return (r === 21 && c === 52); 
+  if (num === 6) return (r === 22 && c === 53); 
   return false;
 }
-
 
 function getCountryModel(num) {
   if (num === 2) return usaModel;
   if (num === 3) return franceModel;
   if (num === 4) return indiaModel;
-  if (num === 5) return franceModel;
+  if (num === 5) return japanModel;
   if (num === 6) return brazilModel;
 }
 
@@ -238,50 +301,30 @@ function mouseClicked() {
          selectedCountries.push(clickedTile);
         }
 
-
         if (clickedTile == 2) {
-         // ここから追加：ジャンプする前に現在の選択状態を保存する
-         // 配列のままだと保存できないので、JSON.stringifyで文字列に変換して保存します
          localStorage.setItem('selectedCountriesData', JSON.stringify(selectedCountries));
-         
          window.location.href = '/usa/usa.html';
-         return; // 地図のドット選択処理を動かさないためにここで処理を終了する
+         return;
         }
-
         if (clickedTile == 3) {
-         // ここから追加：ジャンプする前に現在の選択状態を保存する
-         // 配列のままだと保存できないので、JSON.stringifyで文字列に変換して保存します
          localStorage.setItem('selectedCountriesData', JSON.stringify(selectedCountries));
-         
          window.location.href = '/france/france.html';
-         return; // 地図のドット選択処理を動かさないためにここで処理を終了する
+         return;
         }
-
         if (clickedTile == 4) {
-         // ここから追加：ジャンプする前に現在の選択状態を保存する
-         // 配列のままだと保存できないので、JSON.stringifyで文字列に変換して保存します
          localStorage.setItem('selectedCountriesData', JSON.stringify(selectedCountries));
-         
          window.location.href = '/india/india.html';
-         return; // 地図のドット選択処理を動かさないためにここで処理を終了する
+         return;
         }
-
         if (clickedTile == 5) {
-         // ここから追加：ジャンプする前に現在の選択状態を保存する
-         // 配列のままだと保存できないので、JSON.stringifyで文字列に変換して保存します
          localStorage.setItem('selectedCountriesData', JSON.stringify(selectedCountries));
-         
          window.location.href = '/japan/japan.html';
-         return; // 地図のドット選択処理を動かさないためにここで処理を終了する
+         return;
         }
-
         if (clickedTile == 6) {
-         // ここから追加：ジャンプする前に現在の選択状態を保存する
-         // 配列のままだと保存できないので、JSON.stringifyで文字列に変換して保存します
          localStorage.setItem('selectedCountriesData', JSON.stringify(selectedCountries));
-         
          window.location.href = '/brazil/brazil.html';
-         return; // 地図のドット選択処理を動かさないためにここで処理を終了する
+         return;
         }
     }
   }

@@ -19,7 +19,7 @@ let cowSound;
 
 function preload() {
   handPose = ml5.handPose({maxHands: 1, flipHorizontal: true});
-  cowImg = loadImage('/asset/image/cow.png');
+  cowImg = loadImage('/asset/image/cowWhite.png');
   cowSound = loadSound('/asset/sound/cowFoot.mp3')
 }
 function setup() {
@@ -37,7 +37,7 @@ function setup() {
 }
 
 function draw() {
-  background(240, 230, 210);
+  background(206, 197, 181);
 
   
   //push();
@@ -54,7 +54,7 @@ function draw() {
     
     let currentColor = random(curryColor);
     
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 80; i++) {
      particles.push(new Particle(x ,y, currentColor));
     }
 
@@ -80,14 +80,12 @@ function draw() {
     
     for (let i = 0; i < numFootprints; i++) {
       pg.push();
-      filter(INVERT);
       let offsetX = random(-50, 50);
       let offsetY = random(-50, 50);
       pg.translate(baseX + offsetX, baseY + offsetY);
       pg.rotate(random(360));
-      pg.tint(255, 0, 0);
+      pg.tint(255, 245, 225);
       pg.image(cowImg, 0, 0, 40, 40);
-      filter(INVERT);
       pg.pop();
     }
     //pg.noErase();

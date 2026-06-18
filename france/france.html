@@ -23,6 +23,42 @@
     <main>
     </main>
     <script src="france.js"></script>
+
+    <div class="caption-container">
+        <h1 class="caption-title">FRANCE — La Toile Humaine</h1>
+        <p class="caption-text">
+            目の前には華やかな芸術が広がる。<br>
+            その裏側に隠された人間の生々しさを、あなたの手が暴きだす。
+        </p>
+        <span class="caption-sub">* 画面をクリックするとworld mapに戻ります</span>
+    </div>
+
+    <style>
+    .caption-container {
+        position: absolute;
+        bottom: 40px; /* 画面の下から40pxの位置 */
+        left: 40px;   /* 画面の左から40pxの位置 */
+        color: rgba(30, 30, 30, 0.8); 
+        font-family: "Noto Serif JP", "ヒラギノ明朝 ProN", "MS 明朝", serif; /* 明朝体 */
+        z-index: 10;  /* キャンバスより手前に表示 */
+        pointer-events: none; /* 文字がマウスクリックを邪魔しないようにする */
+    }
+    .caption-title {
+        font-size: 20px;
+        font-weight: normal;
+        letter-spacing: 0.1em; /* 文字の間隔を少し広げて上品に */
+        margin-bottom: 10px;
+    }
+    .caption-text {
+        font-size: 13px;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+    .caption-sub {
+        font-size: 11px;
+        opacity: 0.6;
+    }
+    </style>
 </body>
 
 </html>
