@@ -22,6 +22,11 @@ let franceModel;
 let indiaModel;
 let japanModel;
 let brazilModel;
+let modelSizes = {};
+
+// 高速化用のマッピング変数をグローバルで宣言
+let countryImages = {};
+let countryModels = {};
 
 
 function preload() {
@@ -39,10 +44,24 @@ function preload() {
 }
 
 function setup() {
+  // スマホの高解像度ディスプレイによる負荷を抑える（効果大）
+  pixelDensity(1);
+
   createCanvas(windowWidth, windowHeight, WEBGL);
   
   imageMode(CENTER);
   angleMode(DEGREES);
+
+  // マッピングの初期化
+  countryImages = { 2: usaImg, 3: franceImg, 4: indiaImg, 5: japanImg, 6: brazilImg };
+  countryModels = { 2: usaModel, 3: franceModel, 4: indiaModel, 5: japanModel, 6: brazilModel }; // 💡日本のモデルをjapanModelに修正
+
+  // モデルのサイズ（BoundingBox）を事前に1回だけ計算してキャッシュする
+  modelSizes[2] = usaModel.calculateBoundingBox().size;
+  modelSizes[3] = franceModel.calculateBoundingBox().size;
+  modelSizes[4] = indiaModel.calculateBoundingBox().size;
+  modelSizes[5] = japanModel.calculateBoundingBox().size; 
+  modelSizes[6] = brazilModel.calculateBoundingBox().size;
 
   let savedCountries = localStorage.getItem('selectedCountriesData');
   if (savedCountries) {
@@ -99,12 +118,10 @@ function draw() {
   background(20, 24, 34); 
   
   handleKeyboardInput();
-  
   orbitControl();
 
-  // 暗闇の中で3Dモデルやドットが妖しく光るよう、ライトの当たり方を調整
   ambientLight(60); 
-  directionalLight(200, 230, 255, 0.5, 1, -0.3); // 青白いサイバーな光
+  directionalLight(200, 230, 255, 0.5, 1, -0.3); 
 
   let rows = worldGrid.length;
   let cols = worldGrid[0].length;
@@ -115,8 +132,8 @@ function draw() {
   scale(zoom);
 
   // マウスの3D空間上での現在位置を逆算（周辺検知用）
-  let adjustedMouseX = (mouseX - width / 2 - offsetX) / zoom;
-  let adjustedMouseY = (mouseY - height / 2 - offsetY) / zoom;
+  let adjustedMouseX = (mouseX - width / 2) / zoom - offsetX / zoom;
+  let adjustedMouseY = (mouseY - height / 2) / zoom - offsetY / zoom;
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -132,7 +149,7 @@ function draw() {
       
         if (tile >= 2 && tile <= 6 && isSelected) {
           push(); 
-          let img = getCountryImage(tile);
+          let img = countryImages[tile];
           noStroke();
           texture(img); 
           plane(dotSize, dotSize);
@@ -141,37 +158,36 @@ function draw() {
           plane(dotSize, dotSize);
           
           if (isRepresentativeDot(tile, r, c)) {
-            let countryModel = getCountryModel(tile);
-            let bbox = countryModel.calculateBoundingBox();
+            let countryModel = countryModels[tile];
+            // 💡【エラー修正】bboxを、事前に読み込んだsizeBBoxにすべて置き換え！
+            let sizeBBox = modelSizes[tile];
             push();
             
             if(tile === 2) {
-              translate(0-spacing/2, 0-spacing/2, bbox.size.z);
+              translate(0 - spacing / 2, 0 - spacing / 2, sizeBBox.z);
               rotateX(90);
               scale(0.5);
             }
             else if (tile === 3) {
-              translate(0, 0+spacing/2, -10+bbox.size.y/2);
+              translate(0, 0 + spacing / 2, -10 + sizeBBox.y / 2);
               scale(0.3);
             }
             else if (tile === 4) {
-                translate(0, 0, bbox.size.z/17);
-                rotateX(90);
-                scale(0.15);
+              translate(0, 0, sizeBBox.z / 17);
+              rotateX(90);
+              scale(0.15);
             }
             else if (tile === 5) {
-                translate(0, 0, bbox.size.z/15);
-                rotateX(90);
-                scale(0.15);
+              translate(0, 0, sizeBBox.z / 15);
+              rotateX(90);
+              scale(0.15);
             }
             else if (tile === 6) {
-              translate(0, 0, bbox.size.z/2);
+              translate(0, 0, sizeBBox.z / 2);
               rotateX(90);
               scale(0.3);
             }
 
-            
-            // 暗闇に浮かぶワイヤーフレームを白く発光させる
             stroke(240, 250, 255); 
             strokeWeight(0.08); 
             noFill();
@@ -182,47 +198,34 @@ function draw() {
           
         } else {
           
-          // マウスとこのドットの距離を計算
           let d = dist(x, y, adjustedMouseX, adjustedMouseY);
+          let mouseEffect = 1.0; // サイズ倍率のデフォルト値
           
-          // マウスが近づくほど（距離dが小さいほど）大きくなる倍率を計算
-          let mouseEffect = 1.0;
-          let isNearMouse = false;
-          if (d < 45) { // マウスから半径45ピクセル以内なら反応
-            mouseEffect = map(d, 0, 45, 1.8, 1.0); 
-            isNearMouse = true;
-          }
-
-          noStroke();
-          
-          // 発光と色の設定
           let maxDistance = 70;
-
           let normalAmbient = [110, 86, 116];
           let centerAmbient = [205, 115, 135]; 
           let centerEmissive = [90, 40, 50];
 
-          if (d < maxDistance) {
-            // マウスに近いほど1.0（中心）、遠いほど0.0（外縁）になる比率（0.0 〜 1.0）を計算
-             let amt = map(d, 0, maxDistance, 1.0, 0.0);
-  
-            // 変化のカーブを「じわっと溶ける」ように補正（Smoothstepの再現）
-            amt = amt * amt * (3 - 2 * amt); 
+          // 後で stroke() に使うためのカラー変数を事前に用意
+          let currentR = normalAmbient[0];
+          let currentG = normalAmbient[1];
+          let currentB = normalAmbient[2];
 
-            //  ambientMaterial のブレンド（緑からピンクへじわっと変化）
+          if (d < maxDistance) {
+            let amt = map(d, 0, maxDistance, 1.0, 0.0);
+            amt = amt * amt * (3 - 2 * amt); // Smoothstep補正
+
             let r_amb = lerp(normalAmbient[0], centerAmbient[0], amt);
             let g_amb = lerp(normalAmbient[1], centerAmbient[1], amt);
             let b_amb = lerp(normalAmbient[2], centerAmbient[2], amt);
             ambientMaterial(r_amb, g_amb, b_amb);
 
-            // emissiveMaterial のブレンド（外側は0、中心に近づくほど発光）
             let r_emi = lerp(0, centerEmissive[0], amt);
             let g_emi = lerp(0, centerEmissive[1], amt);
             let b_emi = lerp(0, centerEmissive[2], amt);
             emissiveMaterial(r_emi, g_emi, b_emi);
             
-            // マウスが近づくほど大きくなる倍率
-            let mouseEffect = map(amt, 0, 1, 1.0, 1.8);
+            mouseEffect = map(amt, 0, 1, 1.0, 1.8);
 
           } else {
             // 通常時（完全にマウスの範囲外）
@@ -230,14 +233,18 @@ function draw() {
             emissiveMaterial(0); // 発光なし
           }
 
-          // ズーム連動型の形状変化
-          // zoomが1.3以上なら滑らかな「球体」、それ以下ならデジタルな「立方体」
+          // ドット本体と「全く同じ色」の枠線を、極限の細さ（0.2）で強制的に描きます。
+          // これで網目（ワイヤーフレーム）のような黒いガタガタが消え、boxと同じ綺麗な色で発光します！
+          stroke(currentR, currentG, currentB);
+          strokeWeight(0.2);
+
+          // サイズの計算（mouseEffectの適用）と形状の変化（sphere/box）だけをここで行います。
           let currentSize = (dotSize / 2) * mouseEffect;
           
           if (zoom >= 1.3) {
-            sphere(currentSize); // 解像度高：有機的な球体
+            sphere(currentSize); 
           } else {
-            box(currentSize * 1.5); // 解像度低：カクカクしたデジタル立方体
+            box(currentSize * 1.5);
           }
         }
         pop();
@@ -246,14 +253,6 @@ function draw() {
   }
 }
 
-
-function getCountryImage(num) {
-  if (num === 2) return usaImg;
-  if (num === 3) return franceImg;
-  if (num === 4) return indiaImg;
-  if (num === 5) return japanImg;
-  if (num === 6) return brazilImg;
-}
 
 function isRepresentativeDot(num, r, c) {
   if (num === 2) return (r === 14  && c === 46); 
@@ -264,13 +263,6 @@ function isRepresentativeDot(num, r, c) {
   return false;
 }
 
-function getCountryModel(num) {
-  if (num === 2) return usaModel;
-  if (num === 3) return franceModel;
-  if (num === 4) return indiaModel;
-  if (num === 5) return japanModel;
-  if (num === 6) return brazilModel;
-}
 
 function handleKeyboardInput() {
   if (keyIsDown(ENTER) || keyIsDown(187) || keyIsDown(88)) zoom += 0.02;
@@ -285,11 +277,12 @@ function handleKeyboardInput() {
 function mouseClicked() {
   let rows = worldGrid.length;
   let cols = worldGrid[0].length;
-  let startX = (width - cols * spacing) / 2;
-  let startY = (height - rows * spacing) / 2;
+  let startX = -(cols * spacing) / 2; // 💡【位置計算修正】3DのWEBGL基準に直しました
+  let startY = -(rows * spacing) / 2;
 
-  let adjustedMouseX = (mouseX - width / 2 - offsetX) / zoom + width / 2;
-  let adjustedMouseY = (mouseY - height / 2 - offsetY) / zoom + height / 2;
+  // 💡【位置計算修正】draw内と同じ最新のズーム対応逆算式に統一
+  let adjustedMouseX = (mouseX - width / 2) / zoom - offsetX / zoom;
+  let adjustedMouseY = (mouseY - height / 2) / zoom - offsetY / zoom;
 
   let clickedC = floor((adjustedMouseX - startX) / spacing);
   let clickedR = floor((adjustedMouseY - startY) / spacing);
