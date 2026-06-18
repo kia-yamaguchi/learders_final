@@ -18,8 +18,8 @@
             align-items: center;
             justify-content: center;
             /* スマホ操作最適化 */
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
+            overflow: hidden; /* スクロール禁止 */
+            touch-action: none; /* タッチ操作によるズーム・スクロール禁止
         }
 
         .map-bg {
@@ -58,7 +58,7 @@
             display: inline-block;
             padding: 15px 40px;
             border: 1px solid #4a4a4a;
-            color: #4a4a4a;
+            color: #ff1493;
             text-decoration: none;
             letter-spacing: 0.1em;
             transition: all 0.3s ease;
